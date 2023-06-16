@@ -658,7 +658,7 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-def serializar_servicio(ser,request):
+def serializar_servicio(ser):
     """
     La función serializa una lista de objetos de servicio en una lista de diccionarios que contienen sus
     atributos de nombre de host, IP y contraseña.
@@ -675,18 +675,26 @@ def serializar_servicio(ser,request):
     
     datos = relacion.get(nombre_usuario=usuario_global)
     datos_ip = str(datos.ip).split()[1][1:-1]
-    for servicio in ser:
-        if servicio.ip == datos.ip.ip:
-            print("servicio .ip ")
-            print(servicio.ip)
-            print("Relacion .ip ")
-            print(datos.ip.ip)
-            print(servicio.hostname)
-            d_servicio = {'hostname': servicio.hostname, 'ip': servicio.ip, 'password': servicio.password}
-            #d_servicio = {'nombre_usuario': relacion.nombre_usuario, 'ip': relacion.ip}
-            resultado.append(d_servicio)
-    print(resultado)
-    return resultado
+    if usuario_global != 'admin':
+        for servicio in ser:
+            if servicio.ip == datos.ip.ip:
+                print("servicio .ip ")
+                print(servicio.ip)
+                print("Relacion .ip ")
+                print(datos.ip.ip)
+                print(servicio.hostname)
+                d_servicio = {'hostname': servicio.hostname, 'ip': servicio.ip, 'password': servicio.password}
+                #d_servicio = {'nombre_usuario': relacion.nombre_usuario, 'ip': relacion.ip}
+                resultado.append(d_servicio)
+        print(resultado)
+        return resultado
+    else:
+        for servicio in ser:
+                d_servicio = {'hostname': servicio.hostname, 'ip': servicio.ip, 'password': servicio.password}
+                #d_servicio = {'nombre_usuario': relacion.nombre_usuario, 'ip': relacion.ip}
+                resultado.append(d_servicio)
+        print(resultado)
+        return resultado
 
 def buscar_servicios(request):
     """
@@ -719,14 +727,20 @@ def serializar_estados(estados):
     #usuario = request.session.get('usuario')
     print(usuario_global)
     relacion = models.Relacion.objects.all()
-    
-    datos = relacion.get(nombre_usuario=usuario_global)
+    user = usuario_global
+    datos = relacion.get(nombre_usuario=user)
+    if user != 'admin':    
+        for estado in estados:
+            if estado.ip == datos.ip.ip:
+                d_estado = {'cpu_info': estado.cpu_info, 'memoria_info':estado.memoria_info, 'disco_info':estado.disco_info,'ip': estado.ip}
+                resultado.append(d_estado)
+        return resultado
+    else:
+        for estado in estados:
+                d_estado = {'cpu_info': estado.cpu_info, 'memoria_info':estado.memoria_info, 'disco_info':estado.disco_info,'ip': estado.ip}
+                resultado.append(d_estado)
+        return resultado
 
-    for estado in estados:
-        if estado.ip == datos.ip.ip:
-            d_estado = {'cpu_info': estado.cpu_info, 'memoria_info':estado.memoria_info, 'disco_info':estado.disco_info,'ip': estado.ip}
-            resultado.append(d_estado)
-    return resultado
 
 
 
